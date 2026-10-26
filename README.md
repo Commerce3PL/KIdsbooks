@@ -88,3 +88,9 @@ Live payments and printing remain disabled pending explicit owner approval. No G
 5. For the studio, retrieve the generated `ADMIN_TOKEN` securely from the service’s environment settings and enter it at `/admin.html`. Do not send it in chat.
 
 Use fictional names and synthetic photos. Free service storage is ephemeral: orders, photos, artwork and the local encryption key can disappear on restart or redeploy. The service may sleep when idle and take time to wake up. This configuration is for demonstration, not real customer orders. No AI/Stripe/Lulu credentials are included, so sample generation works without provider charges. Live payments and printing remain disabled. A free account and connecting the GitHub repository are actions the owner must complete; this repository configuration does not create a hosted service by itself.
+
+## Editing the adventure collection
+
+`catalog.js` holds each story’s full description, two visible learning objectives, and three specific investigative scenes. `plots.js` provides its setting, problem, discovery, outcome and factual anchor. `books.js` personalizes the 24-page narrative and joins those sources. Keep the learning goal visible in the action and solution, not only in marketing copy.
+
+Each of the 30 adventures has an original illustrated scene. The five optimized WebP sheets in `public/images/adventures-*.webp` each hold a 3-column, 2-row grid. `catalogOrder` maps stories to panels from left to right, top to bottom; `books.js` exposes those coordinates and accessible descriptions. Explicit `filterGroups` determine the collection shelves. The former shadow-creature adventure was replaced by the community model-bridge story (`bridge`).

@@ -8,3 +8,20 @@
 .sibling-caption{flex-basis:100%;text-align:center;font-family:Georgia,serif;font-style:italic;font-size:15px;color:#a45a3e;margin-top:-5px}
 @media(max-width:950px){.hero-art.purpose-art{min-height:350px}.purpose-illustration{width:112%;margin:0 -6%}.purpose-caption{margin-top:0}}
 @media(max-width:680px){.hero-art.purpose-art{min-height:0;margin:10px -10px 25px}.purpose-illustration{width:100%;margin:0}.purpose-caption{font-size:10px;gap:12px;margin-top:0}.sibling-caption{font-size:14px}}
+
+/* Each story pairs a specific learning goal with its own illustrated scene. */
+.card{display:flex;flex-direction:column}
+.card-art.story-illustration{height:auto;aspect-ratio:1;background-size:300% 200%;background-repeat:no-repeat;flex-shrink:0}
+.card-art.story-illustration:before{display:none}
+.card-copy{display:flex;flex-direction:column;flex:1}
+.card-copy>p{font-size:13px;line-height:1.8;min-height:0}
+.lesson{margin-top:auto;font-size:12px;line-height:1.65;padding-top:18px}
+.lesson h4{font-size:10px;letter-spacing:.8px;text-transform:uppercase;margin:0 0 10px;color:#344c3d}
+.lesson ul{padding-left:17px;margin:0}
+.lesson li{padding-left:3px;margin-bottom:8px}
+.lesson li::marker{color:#bc5d3c}
+.card button{padding-top:7px}
+.chosen-description{font-size:13px;line-height:1.8}
+.chosen-lessons{font-size:12px;line-height:1.7;padding-left:19px;color:#53664f}
+#chosen{font-family:Georgia,serif;font-size:21px;color:#344c3d;margin-bottom:12px}
+@media(max-width:680px){.card-art.story-illustration{aspect-ratio:1}.card-copy>p{font-size:13px}}

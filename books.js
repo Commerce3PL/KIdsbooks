@@ -1,4 +1,5 @@
 import {plots} from './plots.js';
+import {catalog,catalogOrder,filterGroups} from './catalog.js';
 const initial = [
  {id:'space',title:'The cosmic classroom',tag:'SPACE & SCIENCE',icon:'✦',color:'#deddf8',lesson:'Planets, stars & our Milky Way',description:'A small astronaut. A very big universe. Discover what makes our solar system so extraordinary.'},
  {id:'forest',title:'The whispering woods',tag:'NATURE & WONDER',icon:'❋',color:'#dce8d9',lesson:'Photosynthesis & caring for nature',description:'Follow a curious firefly into a forest where every leaf has a little science to share.'},
@@ -15,7 +16,7 @@ const collection = [
 ['hero','The Cape That Could Listen','superheroes','A tiny rescue dog','Sound & compassion','A quiet hero hears a city’s worries before learning how to help.'],
 ['coral','The City Beneath the Pearl','underwater civilizations','A curious cuttlefish','Reefs & interdependence','A city’s pearl dims when its neighbors build walls between habitats.'],
 ['beast','The Council of Small Paws','talking animals','A bold field mouse','Habitats & advocacy','The smallest animals must persuade the forest council to change its plans.'],
-['castle','The Castle with a Thousand Doors','enchanted castles','A polite stone gargoyle','Patterns & patience','Every door offers a shortcut except the one worth taking.'],
+['castle','The Castle with a Thousand Doors','enchanted castles','A courteous stone owl','Patterns & patience','Every door offers a shortcut except the one worth taking.'],
 ['cloud','The Cloudsmith’s Apprentice','sky kingdoms','A puffin with goggles','Weather & responsibility','An accidental snowstorm hides a village that needs warmth and friendship.'],
 ['star','The Last Star Post Office','space adventures','A comet-tailed ferret','Stars & connection','Undelivered letters lead to a lonely astronomer at the galaxy’s edge.'],
 ['garden','The Garden of Borrowed Colors','magical kingdoms','A paint-spotted snail','Pollination & generosity','A gray garden recovers its colors when its visitors learn to share.'],
@@ -27,13 +28,14 @@ const collection = [
 ['mountain','The Mountain of Tiny Brave Things','dragons','A miniature cliff dragon','Erosion & perseverance','A tiny dragon and a child find a gentler route through a crumbling pass.'],
 ['mirror','The Mirror Lake Mystery','dream worlds','A silver-feathered duck','Reflection & self-worth','A lake shows what people fear instead of who they are.'],
 ['train','The Starlight Seed Express','space adventures','A hedgehog conductor','Seed growth & hope','A train carrying seeds must bring a garden to a dark space station.'],
-['music','The Valley of Unheard Songs','talking animals','A tone-deaf tree frog','Vibration & inclusion','A valley discovers that a beautiful chorus needs different voices.'],
+['music','The Valley of Unheard Songs','talking animals','An enthusiastic tree frog','Vibration & inclusion','A valley discovers that a beautiful chorus needs different voices.'],
 ['reef','The Little Guardians of Glass Reef','underwater civilizations','A helmet-wearing hermit crab','Ocean care & teamwork','A reef rescue succeeds when every creature brings a different skill.'],
 ['kite','The Royal Kite Rescue','prince adventures','A daring red panda','Wind & humility','A royal competition becomes a rescue when a rival needs help.'],
-['shadow','The Superhero of Small Shadows','superheroes','A lantern-tailed gecko','Light & fear','A shadow monster turns out to be a misunderstood creature seeking shelter.'],
+['bridge','A Little Bridge, a Big Difference','superheroes','A friendly gecko','Structures & helpfulness','A child tests bridge designs to help a community garden.'],
 ['memory','The Museum of Pocket Treasures','dream worlds','An absentminded raccoon','Memory & gratitude','Ordinary keepsakes reveal the extraordinary people behind them.']
 ];
-export const adventures = [...initial,...collection.map(([id,title,category,companion,lesson,description],i)=>({id,title,category,companion,lesson,description,tag:category.toUpperCase(),icon:['✦','❋','≈','◇','☾'][i%5],color:['#deddf8','#dce8d9','#d9e9ef','#f1dfd6','#eee3bd'][i%5]}))];
+const baseAdventures = [...initial,...collection.map(([id,title,category,companion,lesson,description],i)=>({id,title,category,companion,lesson,description,tag:category.toUpperCase(),icon:['✦','❋','≈','◇','☾'][i%5],color:['#deddf8','#dce8d9','#d9e9ef','#f1dfd6','#eee3bd'][i%5]}))];
+export const adventures=baseAdventures.map(a=>{const copy=catalog[a.id],index=catalogOrder.indexOf(a.id);return {...a,...copy,filters:Object.keys(filterGroups).filter(group=>filterGroups[group].includes(a.id)),lesson:copy.lessons[0],reflect:`How could you use what you learned in ${copy.title.toLowerCase()} to help someone or investigate a question of your own?`,image:`/images/adventures-${Math.floor(index/6)+1}.webp`,imageColumn:index%3,imageRow:Math.floor(index%6/3),imageAlt:`Storybook illustration for ${copy.title}: ${copy.lessons[0]}`};});
 export const roles=['magical explorer','princess','prince','superhero','animal guardian'];
 export function story(name, age, adventure, options={}) {
  const a=adventures.find(a=>a.id===adventure);if(!a)throw Error('Unknown adventure');
@@ -43,28 +45,28 @@ export function story(name, age, adventure, options={}) {
  const beats=[
  ['A story just for you',options.dedication||`For ${name}, whose questions can open whole new worlds.`],
  ['An ordinary morning',`${name}, age ${age}, was practicing being a ${role}. It mostly involved a blanket cape and a very serious breakfast.`],
- ['Something impossible',`A folded map slipped under the door. It shimmered with a picture of ${setting}. “That was not here yesterday,” said ${name}.`],
- ['An unusual friend',`${name} met ${friend}. “I am an excellent guide,” the companion announced, walking straight into a flowerpot.`],
- ['The invitation',`${a.description} “Will you help?” the guide asked. ${name} felt a flutter of worry, then nodded.`],
- ['Across the threshold',`Together they arrived at ${setting}. They discovered ${challenge}. The map shimmered, then grew still.`],
+ ['An invitation to investigate',`${name} received an invitation to visit ${setting}. A fresh notebook waited by the door. “What will we discover?” ${name} wondered.`],
+ ['An unusual friend',`${name} met ${friend}. “I have brought three pencils,” the companion announced. “And no paper.” Luckily, ${name} had a notebook.`],
+ ['A useful mission',`${name} learned about ${challenge}. “Before we rush in, let’s understand what is happening,” ${name} said.`],
+ ['Across the threshold',`Together they arrived at ${setting}. They discovered ${challenge}. They opened their notebook and began with a question.`],
  ['A promise',`${name} promised to bring everyone home safely.${options.sibling?` “We do this together,” said ${options.sibling}, taking ${name}’s hand.`:' The companion offered a small, steady paw.'}`],
- ['The first puzzle',`The path divided into three. The loudest sign said HURRY. The smallest sign said LOOK CLOSELY. ${name} chose to look.`],
+ ['The first attempt',a.activity[0].replaceAll('your child',name).replaceAll('Your child',name)],
  ['A discovery',fact],
- ['Try it together',`“How could we learn more?” asked ${name}. They drew what they saw in a notebook and compared their ideas.`],
- ['A helpful mistake',`The guide’s grand plan ended with a splash. ${name} laughed, then offered a hand. “Mistakes are clues, too.”`],
- ['The locked gate',`A gate would not open for strength or fancy words. It opened when ${name} asked the quietest traveler what they needed.`],
+ ['Try it together',a.activity[1].replaceAll('your child',name).replaceAll('Your child',name)],
+ ['A useful notebook',`${name} wrote down what they had tried and what happened. The guide drew an enormous star beside the observation. “A star is not a measurement,” ${name} laughed, adding a clear note.`],
+ ['Listen before deciding',`${name} asked, “Who is affected by our plan? What have we missed?” Together, they compared what they had observed with what their neighbors needed.`],
  ['The unexpected truth',`Beyond the gate came a surprise: ${twist}. “We have been asking the wrong question,” ${name} whispered.`],
  ['Listening first',`A worried local guide stepped forward. “I did not know what to do,” they whispered. ${name} sat beside them. “You do not have to figure it out alone.”`],
- ['The cost of a shortcut',`The map offered an easy way home—but it would leave their new friends behind. ${name} folded it shut.`],
- ['A small brave choice',`“I am scared,” ${name} admitted. The guide leaned closer. “Being brave does not mean you are never scared.”`],
- ['A plan for everyone',`They made a plan that used everyone’s strengths. The local guide knew the paths; the companion could reach small spaces; ${name} could bring them together.`],
- ['Learning becomes action',`${name} remembered the discovery: ${a.lesson.toLowerCase()}. They checked their idea carefully before trying the next step.`],
- ['When the lights went out',`Just as they began, the path darkened. For a moment, ${name} thought they had failed. Then a tiny voice said, “We are still here.”`],
- ['The heart of the adventure',`${name} reached for their new friend’s hand. “You belong with us, even when things go wrong.” Together, they took the next step.`],
+ ['The tempting shortcut',`“We could say it is finished,” the guide suggested. ${name} shook their head. “We have learned something, but we still need to check whether our idea helps.”`],
+ ['A small brave choice',`“I thought I already knew the answer,” ${name} admitted. The guide smiled. “Changing your mind when you learn something is a strong thing to do.”`],
+ ['A plan for everyone',`They made a plan that used everyone’s strengths. One friend checked observations, another recorded details, and ${name} made sure they all understood the question.`],
+ ['Learning becomes action',a.activity[2].replaceAll('your child',name).replaceAll('Your child',name)],
+ ['Check the result',`${name} stopped to check: had their plan helped, and had it caused a new problem? They asked for feedback rather than deciding that a finished job must be a successful one.`],
+ ['The heart of the adventure',`${name} made sure everyone had a chance to speak. “You belong with us, even when your idea is different.” They listened, made a final adjustment, and agreed on what to do next.`],
  ['A world wakes up',`${name} and their friends ${resolution}. Neighbors cheered. The world had not needed one perfect hero; it had needed people willing to care.`],
  ['A joyful mess',`The guide attempted a victory bow, sneezed, and landed in a pile of ribbons. Even the worried guide laughed until their cheeks hurt.`],
  ['A promise kept',`${name} brought everyone home. The notebook now held a map, a discovery, and a reminder: kindness and curiosity can change what happens next.`],
- ['Your next discovery',`Back at home, ${name} tucked away the blanket cape. “What did you learn?” someone asked. ${name} smiled. “Let me tell you.” What brave, kind thing will you try tomorrow?`]
+ ['Your next discovery',`Back at home, ${name} opened the notebook. “Here is what we learned: ${a.lessons[0]}” Then came a question for you: ${a.reflect}`]
  ];
  return beats.map(([title,text],i)=>({number:i+1,title,text}));
 }
