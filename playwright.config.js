@@ -1,0 +1,2 @@
+import {defineConfig} from '@playwright/test';
+export default defineConfig({testDir:'./e2e',use:{baseURL:'http://127.0.0.1:3100',launchOptions:{executablePath:'/usr/bin/chromium',args:['--no-sandbox']}},webServer:{command:'PORT=3100 DATA_DIR=/tmp/littleworlds-browser-tests ADMIN_TOKEN=browser-test OPENAI_API_KEY= node server.js',url:'http://127.0.0.1:3100',reuseExistingServer:false},projects:[{name:'desktop',use:{viewport:{width:1440,height:1000}}},{name:'mobile',use:{viewport:{width:390,height:844}}}]});

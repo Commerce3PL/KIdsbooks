@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: little-worlds-demo
+    runtime: node
+    plan: free
+    buildCommand: npm ci --omit=dev --cache /tmp/npm-cache
+    startCommand: npm start
+    healthCheckPath: /api/config
+    envVars:
+      - key: NODE_VERSION
+        value: 24.19.0
+      - key: DATA_DIR
+        value: /tmp/little-worlds-private
+      - key: ADMIN_TOKEN
+        generateValue: true
