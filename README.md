@@ -46,7 +46,7 @@ The generation job runs inside the server. A restart marks interrupted jobs fail
 
 1. Configure a Stripe test secret and webhook signing secret. Live keys are rejected in code; no environment flag enables live charges.
 2. Forward Stripe test events to `POST /api/stripe/webhook`, or register a reachable HTTPS endpoint.
-3. Complete AI generation to enable hosted test checkout ($39 USD). Use Stripe test card `4242 4242 4242 4242`, any future expiration and CVC. No real card details.
+3. Complete AI generation to enable hosted test checkout (regular $39 USD; $31.20 USD during the Christmas offer). Use Stripe test card `4242 4242 4242 4242`, any future expiration and CVC. No real card details.
 4. Only a signature-verified, non-live `checkout.session.completed` event with matching order/session, paid status, currency and amount marks the order paid. A browser return URL cannot mark payment successful.
 5. A paid test order enters `awaiting_approval` for printing. Admin refund requests use Stripe’s test API and idempotency keys. Real printing never follows a test payment.
 
@@ -102,3 +102,9 @@ Book viewers display all 24 pages with a page picker and numbered navigation. AI
 After creating a book with a photo, choose **Try this child in other stories**. The catalog reuses that child's encrypted upload and, when available, the same private AI character reference. Choose an adventure to generate it on demand; creating all thirty is not automatic and each AI generation has provider costs. Completed personalized illustrations replace the corresponding catalog sample scenes. Other cards stay explicitly labeled sample illustrations. One family's original-photo expiry is preserved across books; deleting the photo removes its copies from all linked adventures. Existing generated artwork follows the separate retention policy.
 
 The additional preview integration test uses synthetic fixtures and requires Poppler's `pdftotext` and `pdfinfo` utilities (`poppler-utils` on Debian/Ubuntu). Browser tests mock provider output for the personalized preview workflow; they do not generate a real child's likeness. On restricted cloud machines, `XDG_CACHE_HOME=/tmp/littleworlds-font-cache npm run test:browser` gives the SVG text renderer a writable font cache.
+
+## Pricing and the Christmas offer
+
+`pricing.js` is the shared server-side source for the catalog price and Stripe test checkout. Regular book creation is $39 USD. The 2026 Christmas offer applies 20% off ($31.20 USD) from November 1 through December 24 at 11:59 p.m. Pacific; it ends automatically at `2026-12-25T08:00:00Z`. The banner, pricing card, estimator and checkout button use `/api/config` pricing. Quotes exclude printing, shipping and tax, which are not yet configured; the page explicitly identifies all prices as demo/test checkout pricing. The quantity input is an estimate; each story checks out separately.
+
+The checkout amount and currency are saved on the order and verified against signed Stripe events. Previously issued cheaper open checkout quotes are honored. More expensive open quotes are expired and recreated at the current lower price. The browser asks the customer to acknowledge a changed quote before redirecting. An expired Christmas promotion never resets merely because the page is reloaded.
