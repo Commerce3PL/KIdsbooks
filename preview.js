@@ -1,7 +1,7 @@
 import sharp from 'sharp';
 // Produce a display-sized derivative. The print master is never overwritten.
 export async function protectedPreview(input){
- const image=await sharp(input).rotate().resize({width:768,height:768,fit:'inside',withoutEnlargement:true}).toBuffer();
+ const image=await sharp(input).rotate().resize({width:1024,height:1024,fit:'inside',withoutEnlargement:true}).toBuffer();
  const {width,height}=await sharp(image).metadata();
  const size=Math.max(12,Math.round(width*.052));
  const lines=[-.6,-.3,0,.3,.6].map(y=>`<text x="0" y="${height*y}" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="${size}" font-weight="700" letter-spacing="2" fill="white" fill-opacity=".42" stroke="#344c3d" stroke-opacity=".28" stroke-width=".8" paint-order="stroke">LITTLE WORLDS · PREVIEW</text>`).join('');

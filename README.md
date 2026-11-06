@@ -17,7 +17,7 @@ npm run dev
 
 Open port 3000 through your development environment. `/admin.html` is the admin studio. Enter `ADMIN_TOKEN` to list orders, retry failed generation, or refund verified test payments. Without ADMIN_TOKEN all admin endpoints reject access. The UI does not persist this token.
 
-No credentials are needed for demo mode. Choose an adventure, enter Avery / age 5, select animal guardian, add sibling Sam and dedication “For all the worlds you’ll discover.” Check parental consent. A photo is optional in demo mode. Generate, page through the story, and download the 24-page interior and cover proof. Demo books cannot be purchased. Test fixtures use a synthetic image, never a real child’s photo.
+No credentials are needed for demo mode. Choose an adventure, enter Avery / age 5, select animal guardian, add sibling Sam and dedication “For all the worlds you’ll discover.” Check parental consent. Select “Browse a sample story without uploading a photo” to use demo mode. Photo-based creation requires an upload. Generate, page through the story, and download the 24-page interior and cover proof. Demo books cannot be purchased. Test fixtures use a synthetic image, never a real child’s photo.
 
 ## Environment
 
@@ -38,7 +38,7 @@ If DATA_KEY is omitted a private local key is generated in the data directory. P
 
 ## AI generation
 
-With OPENAI_API_KEY and a photo, generation calls OpenAI `gpt-image-1` image edits: one cartoon character reference, then 24 original page illustrations using that reference. This can take several minutes and incurs provider costs. No franchise artwork or branding is requested. No API key: deterministic sample illustrations, explicitly labeled demo. The child remains the main hero, with learning, an emotional conflict, a twist, and a resolution. Thirty adventure premises are included; the current narrative engine shares a common beat structure. Story-specific editorial refinement is still needed before selling.
+With OPENAI_API_KEY and a photo, generation calls OpenAI `gpt-image-1` image edits: one cartoon character reference, then 24 original page illustrations using that reference. This can take several minutes and incurs provider costs. No franchise artwork or branding is requested. Photo upload without an API key: generation is blocked with an explicit `AI_NOT_CONFIGURED` error; no generic illustration is substituted. No-photo samples require the explicit sample option. The child remains the main hero, with learning, an emotional conflict, a twist, and a resolution. Thirty adventure premises are included; the current narrative engine shares a common beat structure. Story-specific editorial refinement is still needed before selling.
 
 The generation job runs inside the server. A restart marks interrupted jobs failed for admin retry. Completed page artwork is retained and reused on retries. This is suitable for development; production requires a durable job queue, concurrency/cost limits, cancellation, content review, image quality checks, and a parent approval step. Image consistency is prompted, not guaranteed. Optional siblings are named in the story but do not yet have separate photo-derived character references.
 
@@ -108,3 +108,13 @@ The additional preview integration test uses synthetic fixtures and requires Pop
 `pricing.js` is the shared server-side source for the catalog price and Stripe test checkout. Regular book creation is $39 USD. The 2026 Christmas offer applies 20% off ($31.20 USD) from November 1 through December 24 at 11:59 p.m. Pacific; it ends automatically at `2026-12-25T08:00:00Z`. The banner, pricing card, estimator and checkout button use `/api/config` pricing. Quotes exclude printing, shipping and tax, which are not yet configured; the page explicitly identifies all prices as demo/test checkout pricing. The quantity input is an estimate; each story checks out separately.
 
 The checkout amount and currency are saved on the order and verified against signed Stripe events. Previously issued cheaper open checkout quotes are honored. More expensive open quotes are expired and recreated at the current lower price. The browser asks the customer to acknowledge a changed quote before redirecting. An expired Christmas promotion never resets merely because the page is reloaded.
+
+## Photo-accurate full-size book previews
+
+The upload flow now treats the original photo as required input for personalized books. Customers can explicitly choose a no-photo sample, but a photo upload never silently becomes a sample. Missing AI credentials produce `awaiting_ai` and `AI_NOT_CONFIGURED`; provider failures remain failed and retryable. An old photo-based demo can be regenerated when AI is enabled. Photo-based PDF downloads remain blocked until actual illustrations have been generated.
+
+The first image-edit request sends the actual normalized uploaded photo with high input fidelity to create a private character reference. Every illustrated scene reuses that reference and, while retained, the original photo as a second image input. The prompt explicitly preserves the child’s visible features, apparent age, skin tone and hair. AI likeness still requires human review; it is not a guaranteed face match.
+
+The viewer fills the browser window and includes an optional native full-screen button, an authenticated uploaded-photo thumbnail, the generated character reference, a bound-page interior view and a personalized cover mockup. Watermarked previews now retain up to 1024 pixels for full-size display. Unrendered adventures show the family’s photo or character with a pending label instead of unrelated sample children. The picture-book mockup is a digital product visualization; exact Lulu layout remains subject to print preflight.
+
+`test/photo-generation.test.js` runs the real HTTP upload/generation flow against a test-only transport. It verifies the processed upload bytes reach the first image request, the same child photo and reference reach all 24 scene requests, and the displayed artwork is returned through protected watermarked routes. The test uses synthetic images and does not claim to validate a real provider’s likeness quality.
